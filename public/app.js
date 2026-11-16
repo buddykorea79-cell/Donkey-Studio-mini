@@ -209,8 +209,12 @@ function render() {
   document.querySelectorAll('[data-step]').forEach((button) => {
     const active = button.dataset.step === step;
     button.classList.toggle('active', active);
-    if (button.classList.contains('step')) active ? button.setAttribute('aria-current', 'step') : button.removeAttribute('aria-current');
+    if (button.getAttribute('role') === 'tab') {
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    }
   });
+  $('inspector-content').setAttribute('aria-labelledby', `tab-${step}`);
   const media = source();
   $('viewer-eyebrow').textContent = currentPreview ? 'ENHANCEMENT PREVIEW' : clip() ? `CLIP ${String(project.clips.indexOf(clip()) + 1).padStart(2, '0')} / PREVIEW` : 'YOUR FOOTAGE, REFINED';
   $('viewer-title').textContent = media?.name || '긴 영상에서, 기억할 장면으로.';
@@ -381,6 +385,18 @@ document.addEventListener('input', (event) => {
     const output = $(`value-${key}`);
     if (output) output.textContent = key === 'exposure' ? `${value > 0 ? '+' : ''}${Math.round(value * 100)}` : `${Math.round(value * 100)}%`;
   }
+});
+document.addEventListener('keydown', (event) => {
+  const current = event.target.closest('[role="tab"][data-step]');
+  if (!current || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  const tabs = [...document.querySelectorAll('.workflow [role="tab"]')];
+  const index = tabs.indexOf(current);
+  if (index < 0) return;
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+    : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+  event.preventDefault();
+  tabs[next].click();
+  tabs[next].focus();
 });
 document.addEventListener('click', async (event) => {
   const button = event.target.closest('button');

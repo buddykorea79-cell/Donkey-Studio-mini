@@ -1,0 +1,18 @@
+{
+  "name": "donkey-studio-mini",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local AI selects, trims, enhances and exports drone and action-camera footage.",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server/index.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "zod": "^4.1.12"
+  }
+}

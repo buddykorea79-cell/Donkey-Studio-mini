@@ -1,0 +1,9 @@
+node_modules/
+data/
+output/
+test-output/
+qa/
+*.log
+.env
+.env.*
+!.env.example

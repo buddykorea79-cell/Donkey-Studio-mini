@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151817">
+  <title>Donkey-Studio Mini — 좋은 장면만, 가볍게.</title>
+  <script>try { const theme = localStorage.getItem('donkey-studio-mini-theme'); if (['midnight','white','bordeaux'].includes(theme)) document.documentElement.dataset.theme = theme; } catch {}</script>
+  <link rel="icon" type="image/svg+xml" href="/donkey.svg">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true"><defs>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="m15 10 6-4v12l-6-4"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.7 6.3L21 12l-6.3 2.7L12 21l-2.7-6.3L3 12l6.3-2.7Z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5m6 0h5v5M4 15v5h5m6 0h5v-5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v12H3Z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+  </defs></svg>
+
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="Donkey-Studio Mini 홈"><span class="brand-mark"><img src="/donkey.svg" alt="" width="28" height="42"></span><strong>donkey-studio<span>mini</span></strong></a>
+    <span class="header-caption">좋은 장면만, 가볍게.</span>
+    <div class="header-actions"><div class="theme-picker" role="group" aria-label="화면 테마"><button data-theme="midnight" aria-pressed="true"><i class="swatch-midnight"></i>Midnight</button><button data-theme="white" aria-pressed="false"><i class="swatch-white"></i>White</button><button data-theme="bordeaux" aria-pressed="false"><i class="swatch-bordeaux"></i>Bordeaux</button></div><span id="save-status" class="save-status" role="status">로컬 작업 공간</span><button id="retry-save" class="text-button edit-control" hidden>저장 재시도</button><button id="connection-btn" class="connection-button" title="AI 연결 및 실행 환경"><span class="status-dot"></span><span id="connection-label">연결 확인 중</span><svg><use href="#i-settings"/></svg></button></div>
+  </header>
+
+  <main class="app-layout">
+    <aside class="library" aria-label="원본 영상">
+      <div class="section-title"><h2>원본 영상 <span id="source-count">0</span></h2><button class="icon-button edit-control" data-action="import" aria-label="영상 추가"><svg><use href="#i-plus"/></svg></button></div>
+      <button class="import-zone edit-control" id="import-zone" data-action="import"><span class="import-icon"><svg><use href="#i-upload"/></svg></span><strong>영상 1개 또는 여러 개</strong><span>선택하거나 여기로 끌어 놓으세요</span><small>MP4 · MOV · MKV · WEBM</small></button>
+      <input id="file-input" type="file" accept="video/*,.mkv,.mts,.m2ts,.avi" multiple hidden>
+      <div id="source-list" class="source-list"></div>
+      <div class="library-footer"><svg><use href="#i-folder"/></svg><div><strong>내 컴퓨터에서 작업</strong><span>원본 영상은 그대로 보관됩니다.</span></div></div>
+    </aside>
+
+    <section class="workspace">
+      <nav class="workflow" aria-label="작업 단계">
+        <button data-step="recommend" class="step active" aria-current="step"><span>01</span> 추천 클립</button><i></i><button data-step="enhance" class="step"><span>02</span> 화질 보정</button><i></i><button data-step="export" class="step"><span>03</span> 내보내기</button>
+      </nav>
+      <div class="workspace-body">
+        <div class="viewer-heading"><div><p class="eyebrow" id="viewer-eyebrow">YOUR FOOTAGE, REFINED</p><h1 id="viewer-title">긴 영상에서, 기억할 장면으로.</h1></div><span id="viewer-meta" class="metadata"></span></div>
+        <div class="viewer" id="viewer">
+          <video id="player" playsinline preload="metadata" hidden></video>
+          <div class="viewer-empty" id="viewer-empty">
+            <div class="viewer-mascot"><img src="/donkey.svg" alt="회색 얼굴과 분홍 귀를 가진 Donkey 캐릭터" width="80" height="122"></div>
+            <h2>여정은 길게. 이야기는 선명하게.</h2><p>영상을 가져오면 AI가 좋은 장면을 찾고,<br>원하는 길이의 클립으로 정리해 드립니다.</p><button class="primary edit-control" data-action="import"><svg><use href="#i-plus"/></svg>첫 영상 가져오기</button>
+          </div>
+          <div id="video-error" class="video-error" hidden><svg><use href="#i-video"/></svg><strong>이 영상은 호환 미리보기가 필요합니다.</strong><p>HEVC 등 브라우저에서 재생할 수 없는 형식은<br>가벼운 미리보기 영상으로 변환할 수 있어요.</p><button class="secondary edit-control" data-action="proxy">호환 미리보기 만들기</button></div>
+          <span id="preview-badge" class="preview-badge" hidden>보정 미리보기 · 최대 4초</span>
+        </div>
+        <div class="player-controls" id="player-controls" hidden><button class="icon-button" id="play-btn" aria-label="재생"><svg><use href="#i-play"/></svg></button><span id="play-time" class="timecode">00:00 / 00:00</span><input type="range" id="seek" min="0" max="1" step="0.01" value="0" aria-label="재생 위치"><button class="text-button" id="original-btn" hidden>원본 보기</button><button class="icon-button" id="fullscreen-btn" aria-label="전체 화면"><svg><use href="#i-expand"/></svg></button></div>
+        <div id="range-editor" class="range-editor" hidden></div>
+        <div class="clip-section-heading"><div><h2>클립 모음 <span id="clip-count">0</span></h2><p id="selection-summary">추천받은 장면을 확인하고 자유롭게 조정하세요.</p></div><button id="add-clip-btn" class="text-button edit-control" data-action="add-clip" disabled><svg><use href="#i-plus"/></svg>직접 구간 추가</button></div>
+        <div class="clip-list" id="clip-list"><div class="empty-clips"><span class="empty-line"></span><p>아직 선택한 장면이 없어요.</p><small>영상을 가져온 뒤 오른쪽에서 추천을 시작하세요.</small></div></div>
+        <section id="outputs" class="outputs" hidden aria-label="완성된 영상"></section>
+      </div>
+    </section>
+
+    <aside class="inspector" aria-label="편집 도구"><div id="inspector-content"></div><div class="inspector-note"><span class="note-dot"></span>자동 저장 · 이어서 작업할 수 있어요</div></aside>
+  </main>
+
+  <section class="job-panel" id="job-panel" hidden aria-live="polite"><div><span class="spinner" id="job-spinner"></span><strong id="job-title">작업 중</strong><span id="job-percent">0%</span><button class="text-button" id="cancel-job">취소</button></div><progress id="job-progress" max="1" value="0"></progress><p id="job-message"></p></section>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="drop-overlay" class="drop-overlay" hidden><div><svg><use href="#i-upload"/></svg><h2>여기에 영상을 놓아 주세요</h2><p>여러 영상을 한 번에 가져올 수 있어요.</p></div></div>
+  <dialog id="connection-dialog"><div class="dialog-heading"><div><p class="eyebrow">LOCAL CONNECTION</p><h2>AI와 작업 환경</h2></div><button class="icon-button" id="close-connection" aria-label="설정 닫기"><svg><use href="#i-close"/></svg></button></div><div id="connection-detail"></div><button id="refresh-connection" class="secondary"><svg><use href="#i-refresh"/></svg>연결 다시 확인</button></dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

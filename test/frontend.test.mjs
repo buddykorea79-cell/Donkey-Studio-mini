@@ -16,7 +16,7 @@ const fixture = () => ({
 // Browser layout and native input behavior are covered separately in browser QA.
 async function studio(initial = fixture(), handler = null) {
   class Element {
-    constructor(id = '') { this.id = id; this.dataset = {}; this.attributes = {}; this.listeners = new Map(); this.hidden = false; this.value = ''; this.disabled = false; this.currentTime = 0; this.duration = 1.235; this.paused = true; this.innerHTML = ''; this.textContent = ''; this.classList = { toggle() {}, add() {}, contains() { return false; } }; }
+    constructor(id = '') { this.id = id; this.dataset = {}; this.attributes = {}; this.listeners = new Map(); this.hidden = false; this.value = ''; this.disabled = false; this.currentTime = 0; this.duration = 1.235; this.paused = true; this.innerHTML = ''; this.textContent = ''; this.style = { setProperty() {} }; this.classList = { toggle() {}, add() {}, contains() { return false; } }; }
     addEventListener(name, listener) { this.listeners.set(name, listener); }
     setAttribute(key, value) { this.attributes[key] = value; }
     getAttribute(key) { return this.attributes[key]; }

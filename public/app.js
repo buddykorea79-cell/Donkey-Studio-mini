@@ -3,6 +3,14 @@ const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const seconds = (value) => Math.round(Number(value || 0) * 100) / 100;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value)));
+function rangeProgress(value, min = 0, max = 100) {
+  const span = Number(max) - Number(min);
+  const progress = (Number(value) - Number(min)) / span * 100;
+  return `${span > 0 && Number.isFinite(progress) ? clamp(progress, 0, 100) : 0}%`;
+}
+function syncRangeStyle(input) {
+  input.style.setProperty('--range-progress', rangeProgress(input.value, input.min || 0, input.max || 100));
+}
 function time(value) {
   const sec = Math.max(0, Math.floor(Number(value) || 0));
   const h = Math.floor(sec / 3600);
@@ -131,7 +139,7 @@ function renderClips() {
 }
 function rangeInput(key, title, min, max, stepValue, formatter) {
   const value = project.settings.quality[key];
-  return `<label class="slider-field field"><span class="range-header">${title}<output id="value-${key}">${formatter(value)}</output></span><input class="edit-control" data-quality="${key}" type="range" min="${min}" max="${max}" step="${stepValue}" value="${value}" aria-label="${title}"></label>`;
+  return `<label class="slider-field field"><span class="range-header">${title}<output id="value-${key}">${formatter(value)}</output></span><input class="edit-control" data-quality="${key}" type="range" min="${min}" max="${max}" step="${stepValue}" value="${value}" style="--range-progress:${rangeProgress(value, min, max)}" aria-label="${title}"></label>`;
 }
 function modelOptions() {
   const model = project.settings.model;
@@ -147,17 +155,17 @@ function renderInspector() {
   const current = source();
   const settings = project.settings;
   if (step === 'recommend') {
-    $('inspector-content').innerHTML = `<p class="eyebrow">01 / FIND YOUR MOMENTS</p><h2>장면을 발견하세요.</h2><p class="intro">필요한 길이를 알려 주세요.<br>좋은 장면을 고르는 일은 AI에 맡기세요.</p>
+    $('inspector-content').innerHTML = `<p class="eyebrow">01 / FIND YOUR MOMENTS</p><h2>장면을 발견하세요.</h2><p class="intro">필요한 길이를 알려 주세요.<br> 좋은 장면을 고르는 일은 AI에 맡기세요.</p>
     <label class="field"><span>완성할 영상의 총길이</span><div class="input-unit"><input class="edit-control" type="number" min="1" max="3600" step="1" value="${settings.targetSec}" data-setting="targetSec" aria-label="완성할 영상의 총길이 초"><span>초</span></div><small>여러 원본에서 고른 클립의 합계입니다.</small></label>
-    <label class="field"><span class="range-header">클립 한 개의 길이 <output id="clip-length-value">${settings.clipSec}초</output></span><input class="edit-control" data-setting="clipSec" type="range" min="2" max="20" step="1" value="${settings.clipSec}" aria-label="클립 한 개의 길이"><span class="range-endpoints"><span>2초 · 빠르게</span><span>20초 · 여유롭게</span></span></label>
+    <label class="field"><span class="range-header">클립 한 개의 길이 <output id="clip-length-value">${settings.clipSec}초</output></span><input class="edit-control" data-setting="clipSec" type="range" min="2" max="20" step="1" value="${settings.clipSec}" style="--range-progress:${rangeProgress(settings.clipSec, 2, 20)}" aria-label="클립 한 개의 길이"><span class="range-endpoints"><span>2초 · 빠르게</span><span>20초 · 여유롭게</span></span></label>
     <div class="divider"></div><div class="section-label">분석할 원본 범위 <small>현재 영상</small></div>
-    ${current ? `<div class="range-fields"><label>시작 (초)<input class="edit-control" data-source-bound="rangeStart" type="number" min="0" max="${current.durationSec}" step="any" value="${current.rangeStart ?? 0}"></label><label>끝 (초)<input class="edit-control" data-source-bound="rangeEnd" type="number" min="${Math.min(.1, current.durationSec)}" max="${current.durationSec}" step="any" value="${current.rangeEnd ?? current.durationSec}"></label></div><p class="hint">${esc(current.name)}<br>원본을 선택해 영상마다 분석 범위를 정하세요.</p>` : '<p class="hint">영상을 가져오면 분석 범위를 정할 수 있어요.</p>'}
+    ${current ? `<div class="range-fields"><label>시작 (초)<input class="edit-control" data-source-bound="rangeStart" type="number" min="0" max="${current.durationSec}" step="any" value="${current.rangeStart ?? 0}"></label><label>끝 (초)<input class="edit-control" data-source-bound="rangeEnd" type="number" min="${Math.min(.1, current.durationSec)}" max="${current.durationSec}" step="any" value="${current.rangeEnd ?? current.durationSec}"></label></div><p class="hint">${esc(current.name)}<br> 원본을 선택해 영상마다 분석 범위를 정하세요.</p>` : '<p class="hint">영상을 가져오면 분석 범위를 정할 수 있어요.</p>'}
     <div class="divider"></div><label class="field"><span>탐색 밀도</span><select class="edit-control" data-setting="maxCandidates" aria-label="탐색 밀도"><option value="12" ${settings.maxCandidates === 12 ? 'selected' : ''}>빠르게 · 원본당 최대 12구간</option><option value="24" ${settings.maxCandidates === 24 ? 'selected' : ''}>균형 있게 · 최대 24구간</option><option value="48" ${settings.maxCandidates === 48 ? 'selected' : ''}>촘촘하게 · 최대 48구간</option></select><small>긴 영상에서 더 많은 장면을 찾으려면 높이세요.</small></label>
     <label class="field"><span>장면 분석 모델</span><select class="edit-control" data-setting="model" aria-label="장면 분석 모델">${modelOptions()}</select></label>
     <div class="ai-description ${settings.model !== '' && system && !system.ollama?.available ? 'warning' : ''}">${modelDescription()}</div>
-    <button class="primary full edit-control" data-action="analyze" ${!project.sources.length ? 'disabled data-always-disabled' : ''}>${icon('spark')}추천 클립 만들기</button><p class="hint">총 ${project.sources.length}개 원본에서 추천합니다.<br>다시 분석하면 기존 클립 모음을 교체합니다.</p>`;
+    <button class="primary full edit-control" data-action="analyze" ${!project.sources.length ? 'disabled data-always-disabled' : ''}>${icon('spark')}추천 클립 만들기</button><p class="hint">총 ${project.sources.length}개 원본에서 추천합니다.<br> 다시 분석하면 기존 클립 모음을 교체합니다.</p>`;
   } else if (step === 'enhance') {
-    $('inspector-content').innerHTML = `<p class="eyebrow">02 / A CLEARER PICTURE</p><h2>더 선명한 순간.</h2><p class="intro">노이즈와 색감을 다듬어 주세요.<br>선택한 클립에 같은 보정을 적용합니다.</p>
+    $('inspector-content').innerHTML = `<p class="eyebrow">02 / A CLEARER PICTURE</p><h2>더 선명한 순간.</h2><p class="intro">노이즈와 색감을 다듬어 주세요.<br> 선택한 클립에 같은 보정을 적용합니다.</p>
     <div class="preset-row"><button class="preset edit-control" data-preset="natural">자연스럽게</button><button class="preset edit-control" data-preset="clear">선명하게</button><button class="preset edit-control" data-preset="lowlight">저조도</button></div>
     ${rangeInput('denoise', '노이즈 감소', 0, 1, .05, (value) => `${Math.round(value * 100)}%`)}
     ${rangeInput('sharpen', '선명도', 0, 1, .05, (value) => `${Math.round(value * 100)}%`)}
@@ -166,12 +174,12 @@ function renderInspector() {
     <label class="check-row"><input class="edit-control" data-quality="stabilize" type="checkbox" ${settings.quality.stabilize ? 'checked' : ''}>가벼운 흔들림 보정</label><p class="quality-notice">실제 영상에 노이즈 감소·선명도·색감 보정을 적용합니다. AI 초해상도 복원 기능은 아닙니다.</p>
     <div class="divider"></div><button class="secondary full edit-control" data-action="preview" ${!project.clips.length ? 'disabled data-always-disabled' : ''}>${icon('play')}4초 보정 미리보기</button><p class="hint">현재 클립 또는 첫 번째 선택 클립으로 비교합니다. 보정 미리보기는 짧은 영상을 직접 렌더링합니다.</p><button class="primary full" data-step="export" style="margin-top:20px">내보내기로${icon('arrow')}</button>`;
   } else {
-    $('inspector-content').innerHTML = `<p class="eyebrow">03 / READY TO GO</p><h2>원하는 방식으로.</h2><p class="intro">한 편의 영상으로 이어 붙이거나,<br>각각의 클립으로 저장하세요.</p>
+    $('inspector-content').innerHTML = `<p class="eyebrow">03 / READY TO GO</p><h2>원하는 방식으로.</h2><p class="intro">한 편의 영상으로 이어 붙이거나,<br> 각각의 클립으로 저장하세요.</p>
     <div class="field"><span>저장 방식</span>${[['merged', '한 편으로 합치기', '클립 순서대로 이어 붙인 MP4 1개'], ['separate', '클립 각각 저장', '선택한 구간마다 개별 MP4'], ['both', '합친 영상 + 개별 클립', '두 가지 결과를 함께 저장']].map(([value, title, description]) => `<label class="export-choice"><input class="edit-control" type="radio" name="mode" value="${value}" data-setting="mode" ${settings.mode === value ? 'checked' : ''}><div><strong>${title}</strong><small>${description}</small></div></label>`).join('')}</div>
     <label class="field"><span>출력 해상도</span><select class="edit-control" data-setting="resolution" aria-label="출력 해상도"><option value="source" ${settings.resolution === 'source' ? 'selected' : ''}>첫 번째 원본 크기</option><option value="1080" ${settings.resolution === '1080' ? 'selected' : ''}>Full HD · 1080p</option><option value="2160" ${settings.resolution === '2160' ? 'selected' : ''}>4K · 2160p</option></select><small>서로 다른 원본은 비율을 유지해 같은 화면에 맞춥니다. 해상도를 높여도 원본에 없는 디테일이 복원되지는 않습니다.</small></label>
     <label class="field"><span>프레임레이트</span><select class="edit-control" data-setting="fps" aria-label="프레임레이트">${[24, 30, 60].map((fps) => `<option value="${fps}" ${settings.fps === fps ? 'selected' : ''}>${fps} fps</option>`).join('')}</select></label>
     <div class="export-summary"><span>${selected().length}개 클립 · 총길이</span><strong>${durationLabel(selectedSeconds())}</strong></div>
-    <button class="primary full edit-control" data-action="export" ${!selected().length ? 'disabled data-always-disabled' : ''}>${icon('download')}영상 만들기</button><p class="hint">MP4 · H.264 / AAC<br>원본 소리는 유지하며, 소리 없는 영상은 무음으로 연결합니다.</p>`;
+    <button class="primary full edit-control" data-action="export" ${!selected().length ? 'disabled data-always-disabled' : ''}>${icon('download')}영상 만들기</button><p class="hint">MP4 · H.264 / AAC<br> 원본 소리는 유지하며, 소리 없는 영상은 무음으로 연결합니다.</p>`;
   }
 }
 function renderRange() {
@@ -182,7 +190,7 @@ function renderRange() {
   const start = current?.startSec ?? media.rangeStart ?? 0;
   const end = current?.endSec ?? media.rangeEnd ?? media.durationSec;
   const percent = (value) => Math.max(0, Math.min(100, value / media.durationSec * 100));
-  $('range-editor').innerHTML = `<div class="range-caption"><span>${current ? '현재 클립 구간 · 핸들로 조정' : '현재 원본의 분석 범위'}</span><span>${time(start)} — ${time(end)} <span class="badge">${durationLabel(end - start)}</span></span></div><div class="source-timeline" aria-hidden="true"><div class="range-window" style="left:${percent(start)}%;width:${percent(end - start)}%"></div>${project.clips.filter((item) => item.sourceId === media.id).map((item) => `<span class="clip-tick ${item.id === clipId ? 'active' : ''}" style="left:${percent(item.startSec)}%;width:${percent(item.endSec - item.startSec)}%"></span>`).join('')}</div><div class="trim-sliders"><label>시작<input class="edit-control" type="range" min="0" max="${media.durationSec}" step="0.1" value="${start}" data-trim="start" aria-label="${current ? '클립' : '분석 범위'} 시작"></label><label>끝<input class="edit-control" type="range" min="0" max="${media.durationSec}" step="0.1" value="${end}" data-trim="end" aria-label="${current ? '클립' : '분석 범위'} 끝"></label></div>`;
+  $('range-editor').innerHTML = `<div class="range-caption"><span>${current ? '현재 클립 구간 · 핸들로 조정' : '현재 원본의 분석 범위'}</span><span>${time(start)} — ${time(end)} <span class="badge">${durationLabel(end - start)}</span></span></div><div class="source-timeline" aria-hidden="true"><div class="range-window" style="left:${percent(start)}%;width:${percent(end - start)}%"></div>${project.clips.filter((item) => item.sourceId === media.id).map((item) => `<span class="clip-tick ${item.id === clipId ? 'active' : ''}" style="left:${percent(item.startSec)}%;width:${percent(item.endSec - item.startSec)}%"></span>`).join('')}</div><div class="trim-sliders"><label>시작<input class="edit-control" type="range" min="0" max="${media.durationSec}" step="0.1" value="${start}" style="--range-progress:${rangeProgress(start, 0, media.durationSec)}" data-trim="start" aria-label="${current ? '클립' : '분석 범위'} 시작"></label><label>끝<input class="edit-control" type="range" min="0" max="${media.durationSec}" step="0.1" value="${end}" style="--range-progress:${rangeProgress(end, 0, media.durationSec)}" data-trim="end" aria-label="${current ? '클립' : '분석 범위'} 끝"></label></div>`;
 }
 function renderOutputs() {
   const exports = project.exports || [];
@@ -240,8 +248,10 @@ function showClip(id, play = false) {
 function updatePlayTime() {
   const duration = Number.isFinite(player.duration) ? player.duration : currentPreview ? 4 : source()?.durationSec || 0;
   $('play-time').textContent = `${time(player.currentTime)} / ${time(duration)}`;
-  $('seek').max = String(duration || 1);
-  $('seek').value = String(player.currentTime || 0);
+  const seek = $('seek');
+  seek.max = String(duration || 1);
+  seek.value = String(player.currentTime || 0);
+  syncRangeStyle(seek);
 }
 player.addEventListener('loadedmetadata', () => { player.currentTime = Math.min(pendingVideoTime, player.duration || pendingVideoTime); updatePlayTime(); });
 player.addEventListener('timeupdate', () => {
@@ -311,6 +321,7 @@ document.addEventListener('change', (event) => {
     if (typeof value === 'number' && !Number.isFinite(value)) return renderInspector();
     project.settings[key] = value;
     element.value = String(value);
+    if (element.type === 'range') syncRangeStyle(element);
     saveSoon(); renderSelectionSummary();
     if (element.type !== 'number' && element.type !== 'range') renderInspector();
     renderBusy();
@@ -331,6 +342,7 @@ document.addEventListener('change', (event) => {
 });
 document.addEventListener('input', (event) => {
   const element = event.target;
+  if (element.type === 'range') syncRangeStyle(element);
   if (busy()) return;
   // Native number fields fire change only on blur. Keep valid drafts in state on
   // input as well, so a delayed connection response cannot redraw an old value.
